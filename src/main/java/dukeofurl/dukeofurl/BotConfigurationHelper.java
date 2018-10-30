@@ -47,11 +47,10 @@ class BotConfigurationHelper {
         Map<String, Map<String, String>> groupedProperties = buildGroupedProperties();
         List<Configuration> configurationList = new ArrayList<>();
 
-        for (String propertyGroup : groupedProperties.keySet()) {
-            Map<String, String> properties = groupedProperties.get(propertyGroup);
+        groupedProperties.values().forEach(properties -> {
             Configuration configuration = buildConfiguration(properties);
             configurationList.add(configuration);
-        }
+        });
 
         return configurationList;
     }
@@ -137,8 +136,8 @@ class BotConfigurationHelper {
         Properties properties = fetchProperties();
         Map<String, Map<String, String>> groupedProperties = new HashMap<>();
 
-        for (String property : properties.stringPropertyNames()) {
-            String[] splitProperty = property.split(PROPERTY_GROUP_SPLIT);
+        properties.forEach((property, attributeValue) -> {
+            String[] splitProperty = ((String)property).split(PROPERTY_GROUP_SPLIT);
             String groupName = splitProperty[0];
             String attributeName = splitProperty[1];
 
@@ -146,9 +145,8 @@ class BotConfigurationHelper {
                 groupedProperties.put(groupName, new HashMap<>());
             }
 
-            String attributeValue = properties.getProperty(property);
-            groupedProperties.get(groupName).put(attributeName, attributeValue);
-        }
+            groupedProperties.get(groupName).put(attributeName, (String)attributeValue);
+        });
 
         if (groupedProperties.containsKey(GLOBAL_PROPERTY_GROUP_NAME)) {
             processGlobalProperties(groupedProperties);
@@ -165,13 +163,12 @@ class BotConfigurationHelper {
         Map<String, String> globalAttributes = groupedProperties.get(GLOBAL_PROPERTY_GROUP_NAME);
         groupedProperties.remove(GLOBAL_PROPERTY_GROUP_NAME);
 
-        for (String network : groupedProperties.keySet()) {
-            Map<String, String> localAttributes = groupedProperties.get(network);
-            for (String key : globalAttributes.keySet()) {
+        groupedProperties.values().forEach(localAttributes -> {
+            globalAttributes.forEach((key, value) -> {
                 if (!localAttributes.containsKey(key)) {
-                    localAttributes.put(key, globalAttributes.get(key));
+                    localAttributes.put(key, value);
                 }
-            }
-        }
+            });
+        });
     }
 }

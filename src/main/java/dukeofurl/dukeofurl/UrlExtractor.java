@@ -21,12 +21,12 @@ class UrlExtractor {
         Iterable<LinkSpan> linkSpanIterable = linkExtractor.extractLinks(string);
         List<String> urlList = new ArrayList<>();
 
-        for (LinkSpan linkSpan : linkSpanIterable) {
+        linkSpanIterable.forEach(linkSpan -> {
             if (LinkType.URL.equals(linkSpan.getType())) {
                 String url = string.substring(linkSpan.getBeginIndex(), linkSpan.getEndIndex());
                 urlList.add(url);
             }
-        }
+        });
 
         return urlList;
     }

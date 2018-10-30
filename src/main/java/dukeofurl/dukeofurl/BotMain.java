@@ -12,10 +12,10 @@ public class BotMain {
     public static void main(String[] args) {
         List<Configuration> configurationList = BotConfigurationHelper.buildConfigurationList();
 
-        for (Configuration configuration : configurationList) {
+        configurationList.forEach(configuration -> {
             PircBotX pircBotX = new PircBotX(configuration);
             BotRunner botRunner = new BotRunner(pircBotX);
             new Thread(botRunner).start();
-        }
+        });
     }
 }
