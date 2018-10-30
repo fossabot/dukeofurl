@@ -1,18 +1,25 @@
-apply plugin: 'application'
-
-mainClassName = "dukeofurl.dukeofurl.BotMain"
+apply plugin: 'java'
 
 repositories {
- mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
- implementation 'commons-io:commons-io:2.6'
- implementation 'org.apache.commons:commons-text:1.6'
- implementation 'org.apache.httpcomponents:httpclient:4.5.6'
- implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
- implementation 'org.json:json:20180813'
- implementation 'org.jsoup:jsoup:1.11.3'
- implementation 'org.nibor.autolink:autolink:0.9.0'
- implementation 'org.pircbotx:pircbotx:2.1'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.6'
+    implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
+    implementation 'org.json:json:20180813'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'org.nibor.autolink:autolink:0.9.0'
+    implementation 'org.pircbotx:pircbotx:2.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'dukeofurl.dukeofurl.BotMain'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

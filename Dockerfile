@@ -1,8 +1,7 @@
 FROM gradle:jre11 as build
 COPY . .
-RUN ["gradle", "build"]
-RUN ["tar", "xf", "build/distributions/gradle.tar"]
+RUN ["gradle", "jar"]
 
 FROM openjdk:11-jre
-COPY --from=build /home/gradle/gradle gradle
-CMD ["gradle/bin/gradle"]
+COPY --from=build /home/gradle/build/libs/gradle.jar .
+CMD ["java", "-jar", "gradle.jar"]
