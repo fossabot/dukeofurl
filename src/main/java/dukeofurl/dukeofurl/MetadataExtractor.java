@@ -1,5 +1,6 @@
 package dukeofurl.dukeofurl;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -107,7 +108,8 @@ class MetadataExtractor {
                     String oembedVideo = extractOembedVideo(content, charset, resourceBundle);
                     metadataList.add(oembedVideo);
                 } else if (MIME_TYPE_IMAGE_JPEG.equals(mimeType) || mIME_TYPE_IMAGE_PNG.equals(mimeType) || MIMME_TYPE_IMAGE_GIF.equals(mimeType)) {
-                    String image = extractImage(content, mimeType, resourceBundle);
+                    long contentLength = httpEntity.getContentLength();
+                    String image = extractImage(content, contentLength, mimeType, resourceBundle);
                     metadataList.add(image);
                 } else if (ContentType.TEXT_PLAIN.getMimeType().equals(mimeType)) {
                     String text = IOUtils.toString(content, charset).trim().replaceAll(WHITESPACE_CHARACTERS, SINGLE_SPACE);
@@ -167,19 +169,21 @@ class MetadataExtractor {
     /**
      * Generates a text description of an image
      * @param content The contents of the HTTP response
+     * @param contentLength THe content length in bytes
      * @param mimeType The MIME type of the HTTP response
      * @param resourceBundle The resource bundle to use for formatting strings
      * @return A text description of the image
      * @throws IOException
      */
-    private static String extractImage(InputStream content, String mimeType, ResourceBundle resourceBundle) throws IOException {
+    private static String extractImage(InputStream content, long contentLength, String mimeType, ResourceBundle resourceBundle) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(content);
+        String displaySize = FileUtils.byteCountToDisplaySize(contentLength);
         String responseFormat = resourceBundle.getString(RESOURCE_URL_IMAGE);
         String type = mimeType.split(MIME_TYPE_SEPARATOR)[1].toUpperCase();
         int height = bufferedImage.getHeight();
         int width = bufferedImage.getWidth();
 
-        return String.format(responseFormat, type, width, height);
+        return String.format(responseFormat, type, width, height, displaySize);
     }
 
     /**
