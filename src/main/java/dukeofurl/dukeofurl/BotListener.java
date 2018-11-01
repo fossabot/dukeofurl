@@ -32,13 +32,7 @@ class BotListener extends ListenerAdapter {
                 }
             }
 
-            List<String> urlList = UrlExtractor.extracUrls(message);
-            for (String url : urlList) {
-                List<String> metadataList = MetadataExtractor.extractMetadata(url, locale);
-                for (String metadata : metadataList) {
-                    event.respondWith(metadata);
-                }
-            }
+            UrlExtractor.extracUrls(message).stream().flatMap(s -> MetadataExtractor.extractMetadata(s, locale).stream()).forEach(event::respondWith);
         } catch (RuntimeException exception) {
             LOGGER.error("Generic exception on listener", exception);
         }

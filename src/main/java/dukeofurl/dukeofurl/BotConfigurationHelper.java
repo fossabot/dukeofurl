@@ -6,13 +6,14 @@ import org.pircbotx.UtilSSLSocketFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Helper class to load and parse the bot configuration after starting up
@@ -44,15 +45,7 @@ class BotConfigurationHelper {
      * @return
      */
     static List<Configuration> buildConfigurationList() {
-        Map<String, Map<String, String>> groupedProperties = buildGroupedProperties();
-        List<Configuration> configurationList = new ArrayList<>();
-
-        groupedProperties.values().forEach(properties -> {
-            Configuration configuration = buildConfiguration(properties);
-            configurationList.add(configuration);
-        });
-
-        return configurationList;
+        return buildGroupedProperties().values().stream().map(BotConfigurationHelper::buildConfiguration).collect(toList());
     }
 
     /**
@@ -163,12 +156,10 @@ class BotConfigurationHelper {
         Map<String, String> globalAttributes = groupedProperties.get(GLOBAL_PROPERTY_GROUP_NAME);
         groupedProperties.remove(GLOBAL_PROPERTY_GROUP_NAME);
 
-        groupedProperties.values().forEach(localAttributes -> {
-            globalAttributes.forEach((key, value) -> {
-                if (!localAttributes.containsKey(key)) {
-                    localAttributes.put(key, value);
-                }
-            });
-        });
+        groupedProperties.values().forEach(localAttributes ->
+                globalAttributes.entrySet().stream().filter(e -> !localAttributes.containsKey(e.getKey())).forEach(e ->
+                        localAttributes.put(e.getKey(), e.getValue())
+                )
+        );
     }
 }

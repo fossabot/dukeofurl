@@ -6,6 +6,9 @@ import org.nibor.autolink.LinkType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Helper class to extract a list of URLs from a string
@@ -17,17 +20,9 @@ class UrlExtractor {
      * @return The list of URLs
      */
     static List<String> extracUrls(String string) {
-        LinkExtractor linkExtractor = LinkExtractor.builder().build();
-        Iterable<LinkSpan> linkSpanIterable = linkExtractor.extractLinks(string);
-        List<String> urlList = new ArrayList<>();
-
-        linkSpanIterable.forEach(linkSpan -> {
-            if (LinkType.URL.equals(linkSpan.getType())) {
-                String url = string.substring(linkSpan.getBeginIndex(), linkSpan.getEndIndex());
-                urlList.add(url);
-            }
-        });
-
-        return urlList;
+        return StreamSupport.stream(LinkExtractor.builder().build().extractLinks(string).spliterator(), false)
+                .filter(l -> l.getType().equals(LinkType.URL))
+                .map(l -> string.substring(l.getBeginIndex(), l.getEndIndex()))
+                .collect(toList());
     }
 }
